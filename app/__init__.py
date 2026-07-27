@@ -23,9 +23,11 @@ def create_app(test_config=None):
 
     from app.routes.employees import employees_bp
     from app.routes.leave import leave_bp
+    from app.routes.payroll import payroll_bp
 
     app.register_blueprint(employees_bp, url_prefix="/api/employees")
     app.register_blueprint(leave_bp, url_prefix="/api/leave")
+    app.register_blueprint(payroll_bp, url_prefix="/api/payroll")
 
     with app.app_context():
         db.create_all()
