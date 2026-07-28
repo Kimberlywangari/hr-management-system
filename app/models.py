@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 
@@ -68,7 +68,7 @@ class LeaveRequest(db.Model):
     unpaid_days = db.Column(db.Float, nullable=False, default=0)
     flags = db.Column(db.String(500), nullable=True)
     reason = db.Column(db.String(500), nullable=True)
-    requested_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    requested_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     decided_at = db.Column(db.DateTime, nullable=True)
     decided_by = db.Column(db.String(150), nullable=True)
 
@@ -98,7 +98,7 @@ class PayrollRun(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     period_month = db.Column(db.Integer, nullable=False)
     period_year = db.Column(db.Integer, nullable=False)
-    generated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    generated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (db.UniqueConstraint("period_month", "period_year", name="uq_period"),)
 

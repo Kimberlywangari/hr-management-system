@@ -12,8 +12,12 @@ def create_app(test_config=None):
     base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     default_db_path = os.path.join(base_dir, "hr_payroll.db")
 
+    database_url = os.environ.get("DATABASE_URL", f"sqlite:///{default_db_path}")
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+
     app.config.from_mapping(
-        SQLALCHEMY_DATABASE_URI=f"sqlite:///{default_db_path}",
+        SQLALCHEMY_DATABASE_URI=database_url,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
     if test_config:

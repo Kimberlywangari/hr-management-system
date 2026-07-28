@@ -1,4 +1,4 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from app.rules import (
     check_notice,
     check_team_coverage,
@@ -44,12 +44,12 @@ def test_team_coverage_handles_zero_team_size():
 
 
 def test_stale_request_flagged_after_48_hours():
-    old_request = datetime.utcnow() - timedelta(hours=49)
+    old_request = datetime.now(timezone.utc) - timedelta(hours=49)
     assert check_stale(old_request) is True
 
 
 def test_recent_request_not_stale():
-    recent_request = datetime.utcnow() - timedelta(hours=2)
+    recent_request = datetime.now(timezone.utc) - timedelta(hours=2)
     assert check_stale(recent_request) is False
 
 

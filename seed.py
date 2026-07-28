@@ -19,7 +19,7 @@ with app.app_context():
     db.session.commit()
 
     ceo = Employee(
-        name="Kimberly Njoroge", role="CEO", team_id=None, manager_id=None,
+        name="Kimberly Wangari", role="CEO", team_id=None, manager_id=None,
         start_date=date(2022, 1, 10), salary=250_000, employment_type="full_time",
     )
     db.session.add(ceo)

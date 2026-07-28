@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from flask import Blueprint, request, jsonify
 from app import db
 from app.models import LeaveRequest, LeaveBalance, Employee, PayrollRun
@@ -14,19 +14,6 @@ def _get_or_create_balance(employee_id, year):
         db.session.add(bal)
         db.session.commit()
     return bal
-
-
-def _months_between(start_date, end_date):
-    """List of (year, month) tuples spanned by a date range, inclusive."""
-    months = []
-    year, month = start_date.year, start_date.month
-    while (year, month) <= (end_date.year, end_date.month):
-        months.append((year, month))
-        month = 1 if month == 12 else month + 1
-        if month == 1 and (year, 12) in [(year, m) for m in [months[-1][1]]] and months[-1][1] == 12:
-            year += 1
-    return months
-
 
 def _find_locked_period(start_date, end_date):
     """Return the first (year, month) in range with an existing payroll run,
@@ -80,7 +67,7 @@ def list_leave_requests():
 @leave_bp.post("")
 def submit_leave_request():
     data = request.get_json()
-    employee = Employee.query.get_or_404(data["employee_id"])
+    employee = db.get_or_404(Employee, data["employee_id"])
     start = datetime.strptime(data["start_date"], "%Y-%m-%d").date()
     end = datetime.strptime(data["end_date"], "%Y-%m-%d").date()
     days_requested = (end - start).days + 1
@@ -112,7 +99,7 @@ def submit_leave_request():
     )
 
     evaluation = evaluate_leave_request(
-        request_date=datetime.utcnow(),
+        request_date=datetime.now(timezone.utc),
         leave_start=start,
         team_size=team_size,
         concurrent_leave_count=concurrent,
@@ -137,7 +124,7 @@ def submit_leave_request():
 
 @leave_bp.post("/<int:request_id>/approve")
 def approve_leave(request_id):
-    leave_req = LeaveRequest.query.get_or_404(request_id)
+    leave_req = db.get_or_404(LeaveRequest, request_id)
     if leave_req.status not in ("pending", "rejected"):
         return jsonify({"error": f"Cannot approve a request that is currently {leave_req.status}"}), 400
 
@@ -150,7 +137,7 @@ def approve_leave(request_id):
     balance = _get_or_create_balance(leave_req.employee_id, leave_req.start_date.year)
     _apply_approval(leave_req, balance)
     leave_req.status = "approved"
-    leave_req.decided_at = datetime.utcnow()
+    leave_req.decided_at = datetime.now(timezone.utc)
     body = request.get_json(silent=True) or {}
     leave_req.decided_by = body.get("decided_by", "manager")
     db.session.commit()
@@ -159,7 +146,7 @@ def approve_leave(request_id):
 
 @leave_bp.post("/<int:request_id>/reject")
 def reject_leave(request_id):
-    leave_req = LeaveRequest.query.get_or_404(request_id)
+    leave_req = db.get_or_404(LeaveRequest, request_id)
     if leave_req.status not in ("pending", "approved"):
         return jsonify({"error": f"Cannot reject a request that is currently {leave_req.status}"}), 400
 
@@ -173,7 +160,7 @@ def reject_leave(request_id):
         _reverse_approval(leave_req, balance)
 
     leave_req.status = "rejected"
-    leave_req.decided_at = datetime.utcnow()
+    leave_req.decided_at = datetime.now(timezone.utc)
     body = request.get_json(silent=True) or {}
     leave_req.decided_by = body.get("decided_by", "manager")
     db.session.commit()
@@ -182,7 +169,7 @@ def reject_leave(request_id):
 
 @leave_bp.post("/<int:request_id>/withdraw")
 def withdraw_leave(request_id):
-    leave_req = LeaveRequest.query.get_or_404(request_id)
+    leave_req = db.get_or_404(LeaveRequest, request_id)
     if leave_req.status not in ("pending", "approved"):
         return jsonify({"error": f"Cannot withdraw a request that is currently {leave_req.status}"}), 400
 
@@ -196,7 +183,7 @@ def withdraw_leave(request_id):
         _reverse_approval(leave_req, balance)
 
     leave_req.status = "withdrawn"
-    leave_req.decided_at = datetime.utcnow()
+    leave_req.decided_at = datetime.now(timezone.utc)
     body = request.get_json(silent=True) or {}
     leave_req.decided_by = body.get("decided_by", "employee")
     db.session.commit()

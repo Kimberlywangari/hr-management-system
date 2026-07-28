@@ -38,7 +38,7 @@ def create_employee():
 
 @employees_bp.patch("/<int:employee_id>")
 def update_employee(employee_id):
-    emp = Employee.query.get_or_404(employee_id)
+    emp = db.get_or_404(Employee, employee_id)
     data = request.get_json()
     for field in ["name", "role", "team_id", "manager_id", "salary", "employment_type"]:
         if field in data:
@@ -49,7 +49,7 @@ def update_employee(employee_id):
 
 @employees_bp.post("/<int:employee_id>/deactivate")
 def deactivate_employee(employee_id):
-    emp = Employee.query.get_or_404(employee_id)
+    emp = db.get_or_404(Employee, employee_id)
     emp.active = False
     db.session.commit()
     return jsonify(emp.to_dict())

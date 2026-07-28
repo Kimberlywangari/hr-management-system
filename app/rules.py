@@ -21,7 +21,7 @@ rather than blocking). The manager retains final approve/reject authority; the
 system's job is to surface risk, not make the decision for them.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 MIN_NOTICE_DAYS = 3
 TEAM_COVERAGE_THRESHOLD = 0.4  # flag if >40% of team is out concurrently
@@ -42,7 +42,7 @@ def check_team_coverage(team_size: int, concurrent_leave_count: int) -> bool:
 
 
 def check_stale(requested_at: datetime, now: datetime = None) -> bool:
-    now = now or datetime.utcnow()
+    now = now or datetime.now(timezone.utc)
     return (now - requested_at) > timedelta(hours=STALE_HOURS)
 
 
