@@ -1,0 +1,361 @@
+:root {
+    --paper: #EEF0E8;
+    --card: #F7F8F3;
+    --ink: #1B3A2F;
+    --ink-2: #2D5942;
+    --stamp-red: #B23A2F;
+    --amber: #C08A2E;
+    --slate: #3D4A42;
+    --border: #D6D9CE;
+    --font-sans: 'IBM Plex Sans', -apple-system, Segoe UI, Roboto, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-sans);
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+}
+
+header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 24px;
+    border-bottom: 3px solid var(--amber);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+header h1::before {
+    content: "§ ";
+    color: var(--amber);
+}
+
+nav {
+    display: flex;
+    gap: 4px;
+    padding: 0 24px;
+    background: var(--paper);
+    border-bottom: 2px solid var(--ink);
+}
+
+nav button {
+    padding: 10px 18px;
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    background: var(--border);
+    color: var(--ink);
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 13px;
+    margin-bottom: -2px;
+    transition: background 0.15s ease;
+}
+
+nav button:hover {
+    background: #c9cdbc;
+}
+
+nav button.active {
+    background: var(--card);
+    color: var(--ink);
+    font-weight: 600;
+    z-index: 1;
+    position: relative;
+}
+
+main {
+    padding: 24px;
+    max-width: 1150px;
+    margin: 0 auto;
+}
+
+.card {
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 14px;
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--ink-2);
+    font-weight: 600;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    background: transparent;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--slate);
+    border-bottom: 2px solid var(--ink);
+}
+
+tr:nth-child(even) td {
+    background: rgba(27, 58, 47, 0.035);
+}
+
+th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+th.sortable:hover {
+    color: var(--ink);
+}
+
+td.num,
+th.num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    border-left: 1px solid var(--border);
+}
+
+.flag {
+    display: inline-block;
+    background: transparent;
+    color: var(--stamp-red);
+    border: 1px solid var(--stamp-red);
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.3px;
+    margin-right: 4px;
+}
+
+.status-pending {
+    color: var(--amber);
+    font-weight: 600;
+}
+
+.status-approved {
+    color: var(--ink-2);
+    font-weight: 600;
+}
+
+.status-rejected {
+    color: var(--stamp-red);
+    font-weight: 600;
+}
+
+.status-withdrawn {
+    color: var(--slate);
+    font-weight: 600;
+    text-decoration: line-through;
+}
+
+button.action {
+    padding: 5px 12px;
+    border-radius: 4px;
+    border: 1.5px solid;
+    cursor: pointer;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    background: transparent;
+    transition: all 0.15s ease;
+}
+
+.approve {
+    border-color: var(--ink-2);
+    color: var(--ink-2);
+}
+
+.approve:hover {
+    background: var(--ink-2);
+    color: white;
+}
+
+.reject {
+    border-color: var(--stamp-red);
+    color: var(--stamp-red);
+}
+
+.reject:hover {
+    background: var(--stamp-red);
+    color: white;
+}
+
+.withdraw {
+    border-color: var(--amber);
+    color: var(--amber);
+}
+
+.withdraw:hover {
+    background: var(--amber);
+    color: white;
+}
+
+.empty {
+    color: var(--slate);
+    padding: 24px;
+    text-align: center;
+    font-style: italic;
+    font-size: 13px;
+}
+
+form.inline {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+form.inline input,
+form.inline select {
+    padding: 7px 9px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-sans);
+    background: white;
+}
+
+form.inline input:focus,
+form.inline select:focus {
+    outline: 2px solid var(--amber);
+    outline-offset: 1px;
+    border-color: var(--ink-2);
+}
+
+.loading {
+    color: var(--slate);
+    padding: 12px;
+    font-style: italic;
+}
+
+.banner {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--stamp-red);
+    color: var(--ink);
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.balance-low {
+    color: var(--stamp-red);
+    font-weight: 700;
+}
+
+.balance-ok {
+    color: var(--ink-2);
+}
+
+a.export-link {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 7px 14px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+a.export-link:hover {
+    background: var(--ink-2);
+}
+
+.actions-cell {
+    position: relative;
+}
+
+.stamp {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-8deg);
+    border: 3px solid;
+    border-radius: 6px;
+    padding: 2px 12px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    pointer-events: none;
+    background: var(--card);
+    white-space: nowrap;
+    animation: stampSlam 0.65s ease-out forwards;
+    z-index: 5;
+}
+
+.stamp-approve {
+    color: var(--ink-2);
+    border-color: var(--ink-2);
+}
+
+.stamp-reject {
+    color: var(--stamp-red);
+    border-color: var(--stamp-red);
+}
+
+@keyframes stampSlam {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(-8deg) scale(2.6);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(-8deg) scale(1);
+    }
+
+    75% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .stamp {
+        animation: none;
+        opacity: 1;
+    }
+
+    nav button {
+        transition: none;
+    }
+}

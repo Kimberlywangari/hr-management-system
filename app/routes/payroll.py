@@ -1,5 +1,7 @@
+import csv
+import io
 from datetime import date, timedelta
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from app import db
 from app.models import PayrollRun, Payslip, Employee, LeaveRequest
 from app.payroll_calc import calculate_payslip
@@ -31,11 +33,29 @@ def _unpaid_leave_days_for_period(employee_id, year, month):
         overlap_start = max(r.start_date, period_start)
         overlap_end = min(r.end_date, period_end)
         overlap_days = (overlap_end - overlap_start).days + 1
-        # Scale the request's unpaid_days by what fraction of the request falls
-        # in this payroll period (handles a leave request spanning two months).
         proportion_in_period = overlap_days / r.days_requested if r.days_requested else 0
         total += r.unpaid_days * proportion_in_period
     return total
+
+
+@payroll_bp.get("")
+def list_payroll_runs():
+    """All payroll runs ever generated, most recent first. This is how
+    generated payslips stay accessible after the fact, since a period can
+    only be generated once."""
+    runs = PayrollRun.query.order_by(
+        PayrollRun.period_year.desc(), PayrollRun.period_month.desc()
+    ).all()
+    return jsonify([
+        {
+            "payroll_run_id": r.id,
+            "period_month": r.period_month,
+            "period_year": r.period_year,
+            "generated_at": r.generated_at.isoformat(),
+            "employee_count": len(r.payslips),
+        }
+        for r in runs
+    ])
 
 
 @payroll_bp.post("/generate")
@@ -96,3 +116,29 @@ def get_payroll(year, month):
         "generated_at": run.generated_at.isoformat(),
         "payslips": [p.to_dict() for p in run.payslips],
     })
+
+
+@payroll_bp.get("/<int:year>/<int:month>/export")
+def export_payroll_csv(year, month):
+    run = PayrollRun.query.filter_by(period_year=year, period_month=month).first()
+    if not run:
+        return jsonify({"error": "No payroll run found for this period"}), 404
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "Employee", "Working Days", "Unpaid Leave Days",
+        "Gross Pay", "Tax Deducted", "Social Security", "Net Pay",
+    ])
+    for p in run.payslips:
+        writer.writerow([
+            p.employee.name, p.working_days, p.unpaid_leave_days,
+            round(p.gross_pay, 2), round(p.tax_deducted, 2),
+            round(p.social_security_deducted, 2), round(p.net_pay, 2),
+        ])
+
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=payroll_{year}_{month}.csv"},
+    )

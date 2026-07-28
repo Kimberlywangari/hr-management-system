@@ -19,7 +19,7 @@ with app.app_context():
     db.session.commit()
 
     ceo = Employee(
-        name="Amina Otieno", role="CEO", team_id=None, manager_id=None,
+        name="Kimberly Njoroge", role="CEO", team_id=None, manager_id=None,
         start_date=date(2022, 1, 10), salary=250_000, employment_type="full_time",
     )
     db.session.add(ceo)
@@ -33,12 +33,12 @@ with app.app_context():
     db.session.commit()
 
     dev1 = Employee(
-        name="Cynthia Wafula", role="Software Engineer", team_id=eng.id, manager_id=eng_lead.id,
+        name="Cynthia Wafula", role="Senior Software Engineer", team_id=eng.id, manager_id=eng_lead.id,
         start_date=date(2023, 6, 15), salary=120_000, employment_type="full_time",
     )
     dev2 = Employee(
-        name="David Kiptoo", role="Software Engineer", team_id=eng.id, manager_id=eng_lead.id,
-        start_date=date(2024, 2, 1), salary=110_000, employment_type="full_time",
+        name="David Kiptoo", role="Junior Software Engineer", team_id=eng.id, manager_id=eng_lead.id,
+        start_date=date(2024, 2, 1), salary=50_000, employment_type="full_time",
     )
     ops_lead = Employee(
         name="Esther Nyambura", role="Ops Lead", team_id=ops.id, manager_id=ceo.id,

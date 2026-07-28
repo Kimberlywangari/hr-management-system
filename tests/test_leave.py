@@ -3,9 +3,18 @@ from app.rules import (
     check_notice,
     check_team_coverage,
     check_stale,
+    check_overlap,
     evaluate_leave_request,
     MIN_NOTICE_DAYS,
 )
+
+
+class DummyRequest:
+    """Lightweight stand-in for a LeaveRequest, since check_overlap only
+    reads .start_date/.end_date and has no DB dependency."""
+    def __init__(self, start_date, end_date):
+        self.start_date = start_date
+        self.end_date = end_date
 
 
 def test_short_notice_flagged():
@@ -71,3 +80,17 @@ def test_evaluate_negative_remaining_balance_all_unpaid():
     )
     assert result["unpaid_days"] == 3
     assert result["is_unpaid"] is True
+
+
+def test_check_overlap_detects_overlapping_range():
+    existing = [DummyRequest(date(2026, 7, 10), date(2026, 7, 14))]
+    assert check_overlap(existing, date(2026, 7, 12), date(2026, 7, 16)) is True
+
+
+def test_check_overlap_no_overlap_when_ranges_dont_touch():
+    existing = [DummyRequest(date(2026, 7, 10), date(2026, 7, 14))]
+    assert check_overlap(existing, date(2026, 7, 15), date(2026, 7, 20)) is False
+
+
+def test_check_overlap_empty_existing_list():
+    assert check_overlap([], date(2026, 7, 1), date(2026, 7, 5)) is False
