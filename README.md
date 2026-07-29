@@ -164,8 +164,11 @@ generic dashboard template.
 ## SQL dump
 `schema_and_data.sql` contains the PostgreSQL schema plus sample teams, employees,
 leave requests (including an over-balance/unpaid case and a short-notice case), and
-at least one generated payroll run. Regenerate with:
+one generated payroll run — all produced by `seed.py`, which generates that payroll
+period using the same tested `calculate_payslip()` logic the live API uses, so the
+seeded numbers are guaranteed correct rather than hand-typed. Regenerate with:
 ```bash
+python seed.py
 pg_dump "<DATABASE_URL>" > schema_and_data.sql
 ```
 

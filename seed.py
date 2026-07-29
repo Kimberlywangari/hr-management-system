@@ -1,11 +1,13 @@
 """Run with: python seed.py
-Populates a few teams, employees, leave requests, and leave balances.
-Run this AFTER the server has started at least once (so tables exist),
-or it will create tables itself via create_app().
+Populates a few teams, employees, leave requests, leave balances, and one
+generated payroll period. Run this AFTER the server has started at least
+once (so tables exist), or it will create tables itself via create_app().
 """
 from datetime import date, timedelta
 from app import create_app, db
-from app.models import Team, Employee, LeaveRequest, LeaveBalance
+from app.models import Team, Employee, LeaveRequest, LeaveBalance, PayrollRun, Payslip
+from app.payroll_calc import calculate_payslip
+from app.routes.payroll import _unpaid_leave_days_for_period
 
 app = create_app()
 
@@ -82,4 +84,34 @@ with app.app_context():
     db.session.commit()
 
     print("Seed data created: 2 teams, 6 employees, 3 leave requests, 6 leave balances.")
-    print('Generate payroll via: POST /api/payroll/generate {"year":2026,"month":7}')
+
+    # Generate one payroll period, using the exact same tested logic the API
+    # route uses, so seeded payslips are guaranteed correct rather than
+    # hand-typed guesses that could drift from the real calculation.
+    payroll_year, payroll_month = 2026, 7
+    run = PayrollRun(period_month=payroll_month, period_year=payroll_year)
+    db.session.add(run)
+    db.session.flush()
+
+    for emp in Employee.query.filter_by(active=True).all():
+        unpaid_days = _unpaid_leave_days_for_period(emp.id, payroll_year, payroll_month)
+        calc = calculate_payslip(
+            monthly_salary=emp.salary,
+            year=payroll_year,
+            month=payroll_month,
+            employee_start_date=emp.start_date,
+            unpaid_leave_days=unpaid_days,
+        )
+        db.session.add(Payslip(
+            payroll_run_id=run.id,
+            employee_id=emp.id,
+            working_days=calc["working_days"],
+            unpaid_leave_days=calc["unpaid_leave_days"],
+            gross_pay=calc["gross_pay"],
+            tax_deducted=calc["tax_deducted"],
+            social_security_deducted=calc["social_security_deducted"],
+            net_pay=calc["net_pay"],
+        ))
+    db.session.commit()
+
+    print(f"Payroll generated for {payroll_year}-{payroll_month:02d}: {len(run.payslips)} payslips.")
