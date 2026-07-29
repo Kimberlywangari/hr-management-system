@@ -43,6 +43,8 @@ def check_team_coverage(team_size: int, concurrent_leave_count: int) -> bool:
 
 def check_stale(requested_at: datetime, now: datetime = None) -> bool:
     now = now or datetime.now(timezone.utc)
+    if requested_at.tzinfo is None:
+        requested_at = requested_at.replace(tzinfo=timezone.utc)
     return (now - requested_at) > timedelta(hours=STALE_HOURS)
 
 
