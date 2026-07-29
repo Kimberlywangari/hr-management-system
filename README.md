@@ -34,8 +34,7 @@ against an in-memory SQLite DB regardless of `DATABASE_URL`, so they're unaffect
 the production database.
 
 ## Live demo
-[hosted Render URL here]
-
+https://hr-management-system-os6q.onrender.com/
 ## What I prioritized, and why
 
 The brief said it's better to do one or two modules properly than three shallowly.
