@@ -34,7 +34,7 @@ against an in-memory SQLite DB regardless of `DATABASE_URL`, so they're unaffect
 the production database.
 
 ## Live demo
-https://hr-management-system-os6q.onrender.com/
+[hosted Render URL here]
 
 ## What I prioritized, and why
 
@@ -164,17 +164,13 @@ generic dashboard template.
 ## SQL dump
 `schema_and_data.sql` contains the PostgreSQL schema plus sample teams, employees,
 leave requests (including an over-balance/unpaid case and a short-notice case), and
-one generated payroll run — all produced by `seed.py`, which generates that payroll
-period using the same tested `calculate_payslip()` logic the live API uses, so the
-seeded numbers are guaranteed correct rather than hand-typed. Regenerate with:
+at least one generated payroll run. Regenerate with:
 ```bash
-python seed.py
 pg_dump "<DATABASE_URL>" > schema_and_data.sql
 ```
 
 ## What I'd improve with more time
-- Real authentication/roles — `decided_by` is currently free text, not tied to a
-  logged-in manager account.
+- Real authentication/roles 
 - A public holiday calendar instead of the Sunday-only working-days assumption.
 - Partial-day leave (currently whole days only).
 - Multiple leave types (annual/sick/unpaid) with separate balances, and accrual over
